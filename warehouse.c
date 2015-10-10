@@ -10,8 +10,10 @@ Warehouse* create_warehouse(int height, int width) {
     w->width = width;
 
     w->tiles = malloc(sizeof(Tile*) * height);
+    w->original_tiles = malloc(sizeof(Tile*) * height);
     for (int row = 0; row < height; row++) {
         w->tiles[row] = malloc(sizeof(Tile) * width);
+        w->original_tiles[row] = malloc(sizeof(Tile) * width);
     }
     return w;
 }
@@ -102,4 +104,16 @@ void move_player_up(Warehouse* w) {
 
 void move_player_down(Warehouse* w) {
     move_player_direction(w, 1, 0);
+}
+
+void reset_warehouse(Warehouse* w) {
+    for (int row = 0; row < w->height; row++) {
+        for (int col = 0; col < w->width; col++) {
+            w->tiles[row][col] = w->original_tiles[row][col];
+            if (w->original_tiles[row][col] == PLAYER) {
+                w->player_row = row;
+                w->player_col = col;
+            }
+        }
+    }
 }

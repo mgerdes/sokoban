@@ -229,7 +229,7 @@ void handle_input() {
     double current_seconds = glfwGetTime();
     static double last_key_press;
 
-    if (current_seconds > last_key_press + 0.1) {
+    if (current_seconds > last_key_press + 0.12) {
         if (glfwGetKey(window, GLFW_KEY_UP)) {
             move_player_up(warehouse);
             last_key_press = current_seconds;
@@ -244,6 +244,10 @@ void handle_input() {
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
             move_player_right(warehouse);
+            last_key_press = current_seconds;
+        }
+        if (glfwGetKey(window, GLFW_KEY_R)) {
+            reset_warehouse(warehouse);
             last_key_press = current_seconds;
         }
     }

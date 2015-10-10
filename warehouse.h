@@ -4,10 +4,12 @@ typedef struct Warehouse {
     int height, width;
     int player_row, player_col;
     Tile** tiles;
+    Tile** original_tiles;
 } Warehouse;
 
 void move_player_left(Warehouse*);
 void move_player_right(Warehouse*);
 void move_player_up(Warehouse*);
 void move_player_down(Warehouse*);
+void reset_warehouse(Warehouse*);
 Warehouse* create_warehouse(int, int);
