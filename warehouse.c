@@ -3,8 +3,8 @@
 
 Warehouse* create_warehouse(int height, int width) {
     Warehouse* w = malloc(sizeof(Warehouse));
-    w->player_row = 0;
-    w->player_col = 0;
+    w->player_row = w->player_col = 0;
+    w->num_of_crates = w->num_of_crates_on_dests = 0;
 
     w->height = height;
     w->width = width;
@@ -39,9 +39,11 @@ int can_move_second_crate(Warehouse* w, int row, int col) {
 }
 
 void remove_crate_from_loc(Warehouse* w, int row, int col) {
-    if (w->tiles[row][col] == PLAYER_ON_DEST
-            || w->tiles[row][col] == CRATE_ON_DEST) {
+    if (w->tiles[row][col] == PLAYER_ON_DEST) {
         w->tiles[row][col] = DEST;
+    } else if (w->tiles[row][col] == CRATE_ON_DEST) {
+        w->tiles[row][col] = DEST;
+        w->num_of_crates_on_dests--;
     } else {
         w->tiles[row][col] = EMPTY;
     }
@@ -60,6 +62,7 @@ void set_loc_player(Warehouse* w, int row, int col) {
 void set_loc_crate(Warehouse* w, int row, int col) {
     if (w->tiles[row][col] == DEST) {
         w->tiles[row][col] = CRATE_ON_DEST;
+        w->num_of_crates_on_dests++;
     } else {
         w->tiles[row][col] = CRATE;
     }
@@ -107,6 +110,7 @@ void move_player_down(Warehouse* w) {
 }
 
 void reset_warehouse(Warehouse* w) {
+    w->num_of_crates_on_dests = 0;
     for (int row = 0; row < w->height; row++) {
         for (int col = 0; col < w->width; col++) {
             w->tiles[row][col] = w->original_tiles[row][col];
@@ -116,4 +120,8 @@ void reset_warehouse(Warehouse* w) {
             }
         }
     }
+}
+
+int is_warehouse_won(Warehouse* w) {
+    return w->num_of_crates == w->num_of_crates_on_dests;
 }

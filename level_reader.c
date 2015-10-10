@@ -52,6 +52,10 @@ Warehouse* read_in_level(int level_num) {
             char c = buffer[col];
             w->tiles[row][col] = get_tile_for_char(c);
             w->original_tiles[row][col] = get_tile_for_char(c);
+
+            if (w->tiles[row][col] == CRATE) {
+                w->num_of_crates++;
+            }
             if (w->tiles[row][col] == PLAYER) {
                 w->player_row = row;
                 w->player_col = col;

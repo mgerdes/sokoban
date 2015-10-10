@@ -8,6 +8,7 @@
 static const GLfloat player_color[] = {1.0, 1.0, 1.0};
 static const GLfloat wall_color[] = {0.2, 0.2, 0.7};
 static const GLfloat crate_color[] = {0.5, 0.0, 0.5};
+static const GLfloat crate_on_dest_color[] = {0.6, 0.0, 0.6};
 static const GLfloat floor_color[] = {0.8, 0.8, 0.8};
 static const GLfloat dest_color[] = {0.0, 0.6, 0.0};
 
@@ -207,8 +208,10 @@ void draw_tile(Tile t, int row, int col) {
             glUniform3fv(color, 1, wall_color);
             break;
         case CRATE:
-        case CRATE_ON_DEST:
             glUniform3fv(color, 1, crate_color);
+            break;
+        case CRATE_ON_DEST:
+            glUniform3fv(color, 1, crate_on_dest_color);
             break;
         case PLAYER:
         case PLAYER_ON_DEST:
@@ -239,6 +242,16 @@ void draw_warehouse() {
     }
 }
 
+void increase_level() {
+    current_level = current_level < 9 ? current_level + 1 : 9;
+    warehouse = read_in_level(current_level);
+}
+
+void decrease_level() {
+    current_level = current_level > 1 ? current_level - 1 : 1;
+    warehouse = read_in_level(current_level);
+}
+
 void handle_input() {
     double current_seconds = glfwGetTime();
     static double last_key_press;
@@ -265,13 +278,11 @@ void handle_input() {
             last_key_press = current_seconds;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET)) {
-            current_level = current_level > 1 ? current_level - 1 : 1;
-            warehouse = read_in_level(current_level);
+            decrease_level();
             last_key_press = current_seconds;
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET)) {
-            current_level = current_level < 9 ? current_level + 1 : 9;
-            warehouse = read_in_level(current_level);
+            increase_level();
             last_key_press = current_seconds;
         }
     }
@@ -283,6 +294,9 @@ int main() {
     }
 
     while (!glfwWindowShouldClose(window)) {
+        if (is_warehouse_won(warehouse)) {
+            increase_level();
+        }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
         handle_input();
