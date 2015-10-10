@@ -6,16 +6,6 @@
 #include "maths.h"
 #include "sokoban.h"
 
-int width, height;
-GLuint cube_vao;
-GLuint cube_points_vbo, cube_normals_vbo; 
-GLuint vertex_shader, fragment_shader;
-GLuint shader_program;
-GLuint view, proj, color;
-GLFWwindow* window;
-int current_level;
-Warehouse* warehouse;
-
 int init_program() {
     if (!glfwInit()) {
         fprintf(stderr, "ERROR: could not start GLFW3\n");
