@@ -108,7 +108,7 @@ Mat* mat_times_mat(Mat* m1, Mat* m2) {
     return m;
 }
 
-Mat* look_at (Vec* cam_pos, Vec* targ_pos, Vec* up) {
+Mat* look_at(Vec* cam_pos, Vec* targ_pos, Vec* up) {
     Mat* p = identity_mat();
     p = translate(p, create_vec(-cam_pos->x, -cam_pos->y, -cam_pos->z, 1.0));
 
@@ -131,7 +131,7 @@ Mat* look_at (Vec* cam_pos, Vec* targ_pos, Vec* up) {
     return mat_times_mat(ori, p);
 }
 
-Mat* perspective (double fovy, double aspect, double near, double far) {
+Mat* perspective(double fovy, double aspect, double near, double far) {
     double fov_rad = fovy * ONE_DEG_IN_RAD;
     double range = tan(fov_rad / 2.0f) * near;
     double sx = (2.0f * near) / (range * aspect + range * aspect);

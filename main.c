@@ -117,6 +117,7 @@ GLuint vertex_shader, fragment_shader;
 GLuint shader_program;
 GLuint view, proj, color;
 GLFWwindow* window;
+int current_level;
 Warehouse* warehouse;
 
 int init_program() {
@@ -182,7 +183,8 @@ int init_program() {
     glEnable(GL_DEPTH_TEST); 
     glDepthFunc(GL_LESS);
 
-    warehouse = read_in_level(1);
+    current_level = 1;
+    warehouse = read_in_level(current_level);
 
     return 0;
 }
@@ -248,6 +250,16 @@ void handle_input() {
         }
         if (glfwGetKey(window, GLFW_KEY_R)) {
             reset_warehouse(warehouse);
+            last_key_press = current_seconds;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET)) {
+            current_level = current_level > 1 ? current_level - 1 : 1;
+            warehouse = read_in_level(current_level);
+            last_key_press = current_seconds;
+        }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET)) {
+            current_level = current_level < 9 ? current_level + 1 : 9;
+            warehouse = read_in_level(current_level);
             last_key_press = current_seconds;
         }
     }
