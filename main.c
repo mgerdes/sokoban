@@ -8,26 +8,28 @@
 static const GLfloat player_color[] = {1.0, 1.0, 1.0};
 static const GLfloat wall_color[] = {0.2, 0.2, 0.7};
 static const GLfloat crate_color[] = {0.5, 0.0, 0.5};
+static const GLfloat floor_color[] = {0.8, 0.8, 0.8};
+static const GLfloat dest_color[] = {0.0, 0.6, 0.0};
 
 static GLfloat cube_normals[] = {
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, -1.0, 0.0,
     -1.0, 0.0, -0.0,
     -1.0, 0.0, -0.0,
     -1.0, 0.0, -0.0,
     0.0, 0.0, -1.0,
     0.0, 0.0, -1.0,
     0.0, 0.0, -1.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
     0.0, 0.0, -1.0,
     0.0, 0.0, -1.0,
     0.0, 0.0, -1.0,
     -1.0, -0.0, 0.0,
     -1.0, -0.0, 0.0,
     -1.0, -0.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
     0.0, -0.0, 1.0,
     0.0, -0.0, 1.0,
     0.0, -0.0, 1.0,
@@ -49,24 +51,24 @@ static GLfloat cube_normals[] = {
 };
 
 static GLfloat cube_points[] = {
+    1.0,-1.0, 1.0,
+    -1.0,-1.0,-1.0,
+    1.0,-1.0,-1.0,
+    1.0,-1.0, 1.0,
+    -1.0,-1.0, 1.0,
+    -1.0,-1.0,-1.0,
     -1.0,-1.0,-1.0,
     -1.0,-1.0, 1.0,
     -1.0, 1.0, 1.0,
     1.0, 1.0,-1.0,
     -1.0,-1.0,-1.0,
     -1.0, 1.0,-1.0,
-    1.0,-1.0, 1.0,
-    -1.0,-1.0,-1.0,
-    1.0,-1.0,-1.0,
     1.0, 1.0,-1.0,
     1.0,-1.0,-1.0,
     -1.0,-1.0,-1.0,
     -1.0,-1.0,-1.0,
     -1.0, 1.0, 1.0,
     -1.0, 1.0,-1.0,
-    1.0,-1.0, 1.0,
-    -1.0,-1.0, 1.0,
-    -1.0,-1.0,-1.0,
     -1.0, 1.0, 1.0,
     -1.0,-1.0, 1.0,
     1.0,-1.0, 1.0,
@@ -112,7 +114,7 @@ const char* fragment_shader_source =
 
 int width, height;
 GLuint cube_vao;
-GLuint cube_points_vbo, cube_normals_vbo;
+GLuint cube_points_vbo, cube_normals_vbo; 
 GLuint vertex_shader, fragment_shader;
 GLuint shader_program;
 GLuint view, proj, color;
@@ -146,18 +148,15 @@ int init_program() {
     glGenBuffers(1, &cube_points_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube_points_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_points), cube_points, GL_STATIC_DRAW);
-
     glGenBuffers(1, &cube_normals_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube_normals_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_normals), cube_normals, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &cube_vao);
     glBindVertexArray(cube_vao);
-
     glBindBuffer(GL_ARRAY_BUFFER, cube_points_vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(0);
-
     glBindBuffer(GL_ARRAY_BUFFER, cube_normals_vbo);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(1);
@@ -189,40 +188,53 @@ int init_program() {
     return 0;
 }
 
-void draw_cube(int row, int col) {
+void draw_tile(Tile t, int row, int col) {
     float x = col*2.0 - warehouse->width + 1.0;
     float z = row*2.0 - warehouse->height + 1.0;
 
     Mat* translation = translate(identity_mat(), create_vec(x, 0.0, z, 1.0));
-
     Vec* camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
     Vec* up = cross_vec(create_vec(-1.0, 0.0, 0.0, 1.0), normalize_vec(camera_pos));
     Mat* view_mat = look_at(camera_pos, create_vec(0.0, 0.0, 0.0, 1.0), up); 
     view_mat = mat_times_mat(view_mat, translation);
-    Mat* proj_mat = perspective(67.0,(float)width / height, 0.1, 100);
-
     glUniformMatrix4fv(view, 1, GL_FALSE, view_mat->m);
+
+    Mat* proj_mat = perspective(67.0,(float)width / height, 0.1, 100);
     glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
 
+    switch(t) {
+        case WALL:
+            glUniform3fv(color, 1, wall_color);
+            break;
+        case CRATE:
+        case CRATE_ON_DEST:
+            glUniform3fv(color, 1, crate_color);
+            break;
+        case PLAYER:
+        case PLAYER_ON_DEST:
+            glUniform3fv(color, 1, player_color);
+            break;
+        case EMPTY:
+            glUniform3fv(color, 1, floor_color);
+            break;
+        case DEST:
+            glUniform3fv(color, 1, dest_color);
+            break;
+    }
+
     glBindVertexArray(cube_vao);
-    glDrawArrays(GL_TRIANGLES, 0, 12*3);
+    if (t == DEST || t == EMPTY) {
+        // first two triangles is just 'floor' of cube.
+        glDrawArrays(GL_TRIANGLES, 0, 2*3);
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, 12*3);
+    }
 }
 
 void draw_warehouse() {
     for (int row = 0; row < warehouse->height; row++) {
         for (int col = 0; col < warehouse->width; col++) {
-            if (warehouse->tiles[row][col] == WALL) {
-                glUniform3fv(color, 1, wall_color);
-                draw_cube(row, col);
-            } else if (warehouse->tiles[row][col] == CRATE 
-                    || warehouse->tiles[row][col] == CRATE_ON_DEST) {
-                glUniform3fv(color, 1, crate_color);
-                draw_cube(row, col);
-            } else if (warehouse->tiles[row][col] == PLAYER 
-                    || warehouse->tiles[row][col] == PLAYER_ON_DEST) {
-                glUniform3fv(color, 1, player_color);
-                draw_cube(row, col);
-            }
+            draw_tile(warehouse->tiles[row][col], row, col);
         }
     }
 }
@@ -231,7 +243,7 @@ void handle_input() {
     double current_seconds = glfwGetTime();
     static double last_key_press;
 
-    if (current_seconds > last_key_press + 0.12) {
+    if (current_seconds > last_key_press + 0.15) {
         if (glfwGetKey(window, GLFW_KEY_UP)) {
             move_player_up(warehouse);
             last_key_press = current_seconds;
