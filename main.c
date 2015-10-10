@@ -293,6 +293,26 @@ int main() {
         return 1;
     }
 
+    printf("|-----------------------------------------|\n");
+    printf("|----------Welcome to Sokoban!------------|\n");
+    printf("|-----------------------------------------|\n");
+    printf("| The warehouse keeper has created you, a |\n");
+    printf("| sentient crate tasked with placing your |\n");
+    printf("|   fellow crates into their designated   |\n"); 
+    printf("| positions in the warehouse. Good Luck.  |\n");
+    printf("|-----------------------------------------|\n");
+    printf("|--------------Instructions---------------|\n");
+    printf("|-----------------------------------------|\n");
+    printf("|  Move each of the crates (purple cubes) |\n");
+    printf("|        onto the green tiles.            |\n");
+    printf("|-----------------------------------------|\n");
+    printf("|--------------Key Bindings---------------|\n");
+    printf("|-----------------------------------------|\n");
+    printf("|   Use the arrow keys to move yourself   |\n");
+    printf("|           Press r to reset              |\n");
+    printf("|      Use [ and ] to change levels       |\n");
+    printf("|-----------------------------------------|\n");
+
     while (!glfwWindowShouldClose(window)) {
         if (is_warehouse_won(warehouse)) {
             increase_level();
