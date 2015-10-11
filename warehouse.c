@@ -18,6 +18,16 @@ Warehouse* create_warehouse(int height, int width) {
     return w;
 }
 
+void delete_warehouse(Warehouse* w) {
+    for (int row = 0; row < w->height; row++) {
+        free(w->tiles[row]);
+        free(w->original_tiles[row]);
+    }
+    free(w->tiles);
+    free(w->original_tiles);
+    free(w);
+}
+
 int is_loc_in_warehouse(Warehouse* w, int row, int col) {
     return row < w->height && row >= 0
         && col < w->width && col >= 0;

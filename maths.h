@@ -10,6 +10,7 @@ typedef struct Mat {
 } Mat;
 
 Vec* create_vec(double, double, double, double);
+void delete_vec(Vec*);
 Vec* cross_vec(Vec*, Vec*);
 Vec* normalize_vec(Vec*);
 Vec* mat_times_vec(Mat*, Vec*);
@@ -20,9 +21,10 @@ Mat* create_mat(double, double, double, double,
         double, double, double, double,
         double, double, double, double,
         double, double, double, double);
+void delete_mat(Mat*);
 Mat* identity_mat();
 Mat* perspective(double, double, double, double);
 Mat* mat_times_mat(Mat*, Mat*);
 Mat* look_at(Vec*, Vec*, Vec*);
-Mat* translate(Mat*, Vec*);
+Mat* translation_mat(double, double, double);
 void print_mat(Mat*);

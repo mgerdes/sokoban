@@ -12,6 +12,10 @@ Vec* create_vec(double x, double y, double z, double w) {
     return v;
 }
 
+void delete_vec(Vec* v) {
+    free(v);
+}
+
 Vec* cross_vec(Vec* v1, Vec* v2) {
     double x = v1->y * v2->z - v1->z * v2->y;
     double y = v1->z * v2->x - v1->x * v2->z;
@@ -64,6 +68,11 @@ Mat* create_mat(double a, double b, double c, double d,
     return mat;
 }
 
+void delete_mat(Mat* m) {
+    free(m->m);
+    free(m);
+}
+
 Mat* zero_mat() {
     return create_mat(0.0,0.0,0.0,0.0,
             0.0,0.0,0.0,0.0,
@@ -78,12 +87,12 @@ Mat* identity_mat() {
             0.0, 0.0, 0.0, 1.0);
 }
 
-Mat* translate(Mat* m, Vec* v) {
-    Mat* m_t = identity_mat();
-    m_t->m[12] = v->x;
-    m_t->m[13] = v->y;
-    m_t->m[14] = v->z;
-    return mat_times_mat(m_t, m);
+Mat* translation_mat(double x, double y, double z) {
+    Mat* m = identity_mat();
+    m->m[12] = x;
+    m->m[13] = y;
+    m->m[14] = z;
+    return m;
 }
 
 Vec* mat_times_vec(Mat* m, Vec* v) {
@@ -109,13 +118,15 @@ Mat* mat_times_mat(Mat* m1, Mat* m2) {
 }
 
 Mat* look_at(Vec* cam_pos, Vec* targ_pos, Vec* up) {
-    Mat* p = identity_mat();
-    p = translate(p, create_vec(-cam_pos->x, -cam_pos->y, -cam_pos->z, 1.0));
-
+    Mat* p = translation_mat(-cam_pos->x, -cam_pos->y, -cam_pos->z);
     Vec* d = vec_minus_vec(targ_pos, cam_pos);
     Vec* f = normalize_vec(d);
-    Vec* r = normalize_vec(cross_vec(f, up));
-    Vec* u = normalize_vec(cross_vec(r, f));
+    
+    Vec* c1 = cross_vec(f, up);
+    Vec* r = normalize_vec(c1);
+
+    Vec* c2 = cross_vec(r, f);
+    Vec* u = normalize_vec(c2);
 
     Mat* ori = identity_mat();
     ori->m[0] = r->x;
@@ -128,7 +139,18 @@ Mat* look_at(Vec* cam_pos, Vec* targ_pos, Vec* up) {
     ori->m[6] = -f->y;
     ori->m[10] = -f->z;
 
-    return mat_times_mat(ori, p);
+    Mat* ret = mat_times_mat(ori, p);
+
+    delete_mat(p);
+    delete_mat(ori);
+    delete_vec(d);
+    delete_vec(f);
+    delete_vec(r);
+    delete_vec(u);
+    delete_vec(c1);
+    delete_vec(c2);
+
+    return ret;
 }
 
 Mat* perspective(double fovy, double aspect, double near, double far) {

@@ -115,3 +115,6 @@ GLuint view, proj, color;
 GLFWwindow* window;
 int current_level;
 Warehouse* warehouse;
+Vec* camera_pos;
+Vec* center;
+Vec* up;

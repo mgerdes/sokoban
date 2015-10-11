@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "warehouse.h"
 #include "level_reader.h"
 #include "maths.h"
@@ -69,21 +70,23 @@ int init_program() {
     current_level = 1;
     warehouse = read_in_level(current_level);
 
+    camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
+    center = create_vec(0.0, 0.0, 0.0, 1.0);
+    up = create_vec(0.0, 1.0, 0.0, 1.0);
+
     return 0;
 }
 
 void draw_tile(Tile t, int row, int col) {
-    float x = col*2.0 - warehouse->width + 1.0;
-    float z = row*2.0 - warehouse->height + 1.0;
+    double x = col*2.0 - warehouse->width + 1.0;
+    double z = row*2.0 - warehouse->height + 1.0;
 
-    Mat* translation = translate(identity_mat(), create_vec(x, 0.0, z, 1.0));
-    Vec* camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
-    Vec* up = cross_vec(create_vec(-1.0, 0.0, 0.0, 1.0), normalize_vec(camera_pos));
-    Mat* view_mat = look_at(camera_pos, create_vec(0.0, 0.0, 0.0, 1.0), up); 
-    view_mat = mat_times_mat(view_mat, translation);
-    glUniformMatrix4fv(view, 1, GL_FALSE, view_mat->m);
-
+    Mat* translation = translation_mat(x, 0.0, z);
+    Mat* look_at_mat = look_at(camera_pos, center, up); 
+    Mat* view_mat = mat_times_mat(look_at_mat, translation);
     Mat* proj_mat = perspective(67.0,(float)width / height, 0.1, 100);
+
+    glUniformMatrix4fv(view, 1, GL_FALSE, view_mat->m);
     glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
 
     switch(t) {
@@ -115,6 +118,11 @@ void draw_tile(Tile t, int row, int col) {
     } else {
         glDrawArrays(GL_TRIANGLES, 0, 12*3);
     }
+
+    delete_mat(translation);
+    delete_mat(look_at_mat);
+    delete_mat(view_mat);
+    delete_mat(proj_mat);
 }
 
 void draw_warehouse() {
@@ -127,12 +135,21 @@ void draw_warehouse() {
 
 void increase_level() {
     current_level = current_level < 9 ? current_level + 1 : 9;
+    delete_warehouse(warehouse);
     warehouse = read_in_level(current_level);
 }
 
 void decrease_level() {
     current_level = current_level > 1 ? current_level - 1 : 1;
+    delete_warehouse(warehouse);
     warehouse = read_in_level(current_level);
+}
+
+void cleanup() {
+    delete_warehouse(warehouse);
+    delete_vec(up);
+    delete_vec(camera_pos);
+    delete_vec(center);
 }
 
 void handle_input() {
@@ -167,6 +184,12 @@ void handle_input() {
         if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET)) {
             increase_level();
             last_key_press = current_seconds;
+        }
+        if (glfwGetKey(window, GLFW_KEY_Q)) {
+            cleanup();
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            exit(0);
         }
     }
 }

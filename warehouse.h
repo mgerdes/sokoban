@@ -15,3 +15,4 @@ void move_player_down(Warehouse*);
 void reset_warehouse(Warehouse*);
 int is_warehouse_won(Warehouse*);
 Warehouse* create_warehouse(int, int);
+void delete_warehouse(Warehouse*);

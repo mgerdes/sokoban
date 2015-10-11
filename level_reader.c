@@ -63,6 +63,7 @@ Warehouse* read_in_level(int level_num) {
         }
     }
 
+    free(buffer);
     fclose(f);
 
     return w;
