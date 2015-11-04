@@ -14,6 +14,8 @@ void delete_vec(Vec*);
 Vec* cross_vec(Vec*, Vec*);
 Vec* normalize_vec(Vec*);
 Vec* mat_times_vec(Mat*, Vec*);
+Vec* rotate_vec_y(Vec*, double);
+Vec* rotate_vec_x(Vec*, double);
 double dot_vec(Vec*, Vec*);
 void print_vec(Vec*);
 

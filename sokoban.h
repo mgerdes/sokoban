@@ -91,7 +91,7 @@ const char* vertex_shader_source =
     "uniform vec3 vertex_color;"
     "uniform mat4 view, proj;"
     "void main () {"
-    "   vec3 light_position = vec3(15.0, 15.0, -15.0);"
+    "   vec3 light_position = vec3(10.0, 10.0, -10.0);"
     "   vec3 L = normalize(light_position - vertex_position);"
     "   float dot_prod = max(dot(L, vertex_normal), 0.4);"
     "   color = dot_prod * vertex_color;"

@@ -36,6 +36,26 @@ Vec* normalize_vec(Vec* v) {
     return create_vec(v->x / length, v->y / length, v->z / length, v->w);
 }
 
+Vec* rotate_vec_y(Vec* v, double theta) {
+    Mat* rotate_mat = create_mat(cos(theta), 0, -sin(theta), 0, 
+                                0, 1, 0, 0, 
+                                sin(theta), 0, cos(theta), 0, 
+                                0, 0, 0, 0);
+    Vec* r = mat_times_vec(rotate_mat, v);
+    delete_mat(rotate_mat);
+    return r;
+}
+
+Vec* rotate_vec_x(Vec* v, double theta) {
+    Mat* rotate_mat = create_mat(1, 0, 0, 0, 
+                                0, cos(theta), sin(theta), 0, 
+                                0, -sin(theta), cos(theta), 0, 
+                                0, 0, 0, 0);
+    Vec* r = mat_times_vec(rotate_mat, v);
+    delete_mat(rotate_mat);
+    return r;
+}
+
 /* stored column-major:
  *   a e i m 
  *   b f j n

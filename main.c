@@ -152,6 +152,13 @@ void cleanup() {
     delete_vec(center);
 }
 
+void reset_camera() {
+    delete_vec(up);
+    delete_vec(camera_pos);
+    camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
+    up = create_vec(0.0, 1.0, 0.0, 1.0);
+}
+
 void handle_input() {
     double current_seconds = glfwGetTime();
     static double last_key_press;
@@ -175,6 +182,7 @@ void handle_input() {
         }
         if (glfwGetKey(window, GLFW_KEY_R)) {
             reset_warehouse(warehouse);
+            reset_camera();
             last_key_press = current_seconds;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET)) {
@@ -184,6 +192,32 @@ void handle_input() {
         if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET)) {
             increase_level();
             last_key_press = current_seconds;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A)) {
+            Vec* old_camera_pos = camera_pos;
+            camera_pos = rotate_vec_y(old_camera_pos, 0.02);
+            delete_vec(old_camera_pos);
+        }
+        if (glfwGetKey(window, GLFW_KEY_D)) {
+            Vec* old_camera_pos = camera_pos;
+            camera_pos = rotate_vec_y(old_camera_pos, -0.02);
+            delete_vec(old_camera_pos);
+        }
+        if (glfwGetKey(window, GLFW_KEY_W)) {
+            Vec* old_camera_pos = camera_pos;
+            Vec* old_up = up;
+            camera_pos = rotate_vec_x(old_camera_pos, 0.02);
+            up = rotate_vec_x(old_up, 0.02);
+            delete_vec(old_camera_pos);
+            delete_vec(old_up);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S)) {
+            Vec* old_camera_pos = camera_pos;
+            Vec* old_up = up;
+            camera_pos = rotate_vec_x(old_camera_pos, -0.02);
+            up = rotate_vec_x(old_up, -0.02);
+            delete_vec(old_camera_pos);
+            delete_vec(old_up);
         }
         if (glfwGetKey(window, GLFW_KEY_Q)) {
             cleanup();
@@ -215,8 +249,10 @@ int main() {
     printf("|--------------Key Bindings---------------|\n");
     printf("|-----------------------------------------|\n");
     printf("|   Use the arrow keys to move yourself   |\n");
-    printf("|           Press r to reset              |\n");
+    printf("|            Press R to reset             |\n");
     printf("|      Use [ and ] to change levels       |\n");
+    printf("| Use W, A, S, and D to rotate the camera |\n");
+    printf("|             Press Q to quit             |\n");
     printf("|-----------------------------------------|\n");
 
     while (!glfwWindowShouldClose(window)) {
