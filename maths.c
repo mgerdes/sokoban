@@ -36,6 +36,27 @@ Vec* normalize_vec(Vec* v) {
     return create_vec(v->x / length, v->y / length, v->z / length, v->w);
 }
 
+Vec* rotate_vec(Vec* v, Vec* u, double theta) {
+    double c = cos(theta);
+    double s = sin(theta);
+    double x1 = c + u->x * u->x * (1 - c);
+    double x2 = u->x * u->y * (1 - c) - u->z * s;
+    double x3 = u->x * u->z * (1 - c) + u->y * s;
+    double y1 = u->y * u->x * (1 - c) + u->z * s;
+    double y2 = c + u->y * u->y * (1 - c);
+    double y3 = u->y * u->z * (1 - c) - u->x * s;
+    double z1 = u->z * u->x * (1 - c) - u->y * s;
+    double z2 = u->z * u->y * (1 - c) + u->x * s;
+    double z3 = c + u->z * u->z * (1 - c);
+    Mat* rotate_mat = create_mat(x1, y1, z1, 0, 
+                                 x2, y2, z2, 0, 
+                                 x3, y3, z3, 0, 
+                                 0, 0, 0, 0);
+    Vec* r = mat_times_vec(rotate_mat, v);
+    delete_mat(rotate_mat);
+    return r;
+}
+
 Vec* rotate_vec_y(Vec* v, double theta) {
     Mat* rotate_mat = create_mat(cos(theta), 0, -sin(theta), 0, 
                                 0, 1, 0, 0, 

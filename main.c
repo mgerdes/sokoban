@@ -18,6 +18,10 @@ int init_program() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    x_axis = create_vec(1.0, 0.0, 0.0, 0.0);
+    y_axis = create_vec(0.0, 1.0, 0.0, 0.0);
+    z_axis = create_vec(0.0, 0.0, 1.0, 0.0);
+
     width = height = 1000;
     window = glfwCreateWindow(width, height, "Sokoban!", NULL, NULL);
     if (!window) {
@@ -72,7 +76,7 @@ int init_program() {
 
     camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
     center = create_vec(0.0, 0.0, 0.0, 1.0);
-    up = create_vec(0.0, 1.0, 0.0, 1.0);
+    up = cross_vec(camera_pos, x_axis);
 
     return 0;
 }
@@ -150,13 +154,41 @@ void cleanup() {
     delete_vec(up);
     delete_vec(camera_pos);
     delete_vec(center);
+    delete_vec(x_axis);
+    delete_vec(y_axis);
+    delete_vec(z_axis);
 }
 
 void reset_camera() {
     delete_vec(up);
     delete_vec(camera_pos);
     camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
-    up = create_vec(0.0, 1.0, 0.0, 1.0);
+    up = cross_vec(camera_pos, x_axis);
+}
+
+void rotate_camera_up(double degrees) {
+    Vec* old_camera_pos = camera_pos;
+    Vec* old_up = up;
+    Vec* cross = cross_vec(camera_pos, up);
+    Vec* u_hat = normalize_vec(cross);
+
+    camera_pos = rotate_vec(old_camera_pos, u_hat, degrees);
+    up = rotate_vec(old_up, u_hat, degrees);
+
+    delete_vec(old_camera_pos);
+    delete_vec(old_up);
+    delete_vec(cross);
+    delete_vec(u_hat);
+}
+
+void rotate_camera_left(double degrees) {
+    Vec* old_camera_pos = camera_pos;
+    Vec* up_hat = normalize_vec(up);
+
+    camera_pos = rotate_vec(old_camera_pos, up_hat, degrees);
+
+    delete_vec(old_camera_pos);
+    delete_vec(up_hat);
 }
 
 void handle_input() {
@@ -194,30 +226,16 @@ void handle_input() {
             last_key_press = current_seconds;
         }
         if (glfwGetKey(window, GLFW_KEY_A)) {
-            Vec* old_camera_pos = camera_pos;
-            camera_pos = rotate_vec_y(old_camera_pos, 0.02);
-            delete_vec(old_camera_pos);
+            rotate_camera_left(0.02);
         }
         if (glfwGetKey(window, GLFW_KEY_D)) {
-            Vec* old_camera_pos = camera_pos;
-            camera_pos = rotate_vec_y(old_camera_pos, -0.02);
-            delete_vec(old_camera_pos);
+            rotate_camera_left(-0.02);
         }
         if (glfwGetKey(window, GLFW_KEY_W)) {
-            Vec* old_camera_pos = camera_pos;
-            Vec* old_up = up;
-            camera_pos = rotate_vec_x(old_camera_pos, 0.02);
-            up = rotate_vec_x(old_up, 0.02);
-            delete_vec(old_camera_pos);
-            delete_vec(old_up);
+            rotate_camera_up(-0.02);
         }
         if (glfwGetKey(window, GLFW_KEY_S)) {
-            Vec* old_camera_pos = camera_pos;
-            Vec* old_up = up;
-            camera_pos = rotate_vec_x(old_camera_pos, -0.02);
-            up = rotate_vec_x(old_up, -0.02);
-            delete_vec(old_camera_pos);
-            delete_vec(old_up);
+            rotate_camera_up(0.02);
         }
         if (glfwGetKey(window, GLFW_KEY_Q)) {
             cleanup();
