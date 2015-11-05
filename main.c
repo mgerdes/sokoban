@@ -79,7 +79,7 @@ int init_program() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(2);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
