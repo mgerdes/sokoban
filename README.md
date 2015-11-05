@@ -10,3 +10,5 @@ OpenGL, GLEW, and GLFW
 # Running
 
 Running `make` should compile everything. Then `./sokoban` to actually run it. I've only compiled / ran it on a 64-bit Arch Linux distribution.
+
+![](http://i.imgur.com/I1y2zwt.gif)
