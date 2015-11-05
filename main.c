@@ -172,7 +172,7 @@ void draw_warehouse() {
 }
 
 void increase_level() {
-    current_level = current_level < 20 ? current_level + 1 : 20;
+    current_level = current_level < 60 ? current_level + 1 : 60;
     delete_warehouse(warehouse);
     warehouse = read_in_level(current_level);
 }
