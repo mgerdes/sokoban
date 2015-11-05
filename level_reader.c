@@ -33,8 +33,8 @@ Warehouse* read_in_level(int level_num) {
     int buffer_size = 255; // Effectively means levels can have a max width of 255.
     char* buffer = malloc(sizeof(char) * buffer_size);
 
-    char file_name[] = "levels/level2\0";
-    file_name[12] = '0' + level_num; // Bad hack, will only allow for 1 digit long level numbers
+    char file_name[20];
+    sprintf(file_name, "levels/level%d", level_num);
 
     FILE* f = fopen(file_name, "r");
     if (!f) {
