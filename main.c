@@ -3,9 +3,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "warehouse.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "image_reader/stb_image.h"
 #include "level_reader.h"
 #include "maths.h"
 #include "sokoban.h"
+
+void load_texture() {
+    int x, y, n;
+    int force_channels = 3;
+    unsigned char* image_data = stbi_load("./textures/crate001.jpg", &x, &y, &n, force_channels);
+    if (!image_data) {
+        printf("Could not load image\n");
+    }
+
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glActiveTexture(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 
+            0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+}
 
 int init_program() {
     if (!glfwInit()) {
@@ -34,12 +56,17 @@ int init_program() {
     glewExperimental = GL_TRUE;
     glewInit();
 
+    load_texture();
+
     glGenBuffers(1, &cube_points_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube_points_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_points), cube_points, GL_STATIC_DRAW);
     glGenBuffers(1, &cube_normals_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube_normals_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_normals), cube_normals, GL_STATIC_DRAW);
+    glGenBuffers(1, &texture_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coords), texture_coords, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &cube_vao);
     glBindVertexArray(cube_vao);
@@ -49,6 +76,9 @@ int init_program() {
     glBindBuffer(GL_ARRAY_BUFFER, cube_normals_vbo);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(2);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
@@ -67,6 +97,7 @@ int init_program() {
     view = glGetUniformLocation(shader_program, "view");
     proj = glGetUniformLocation(shader_program, "proj");
     color = glGetUniformLocation(shader_program, "vertex_color");
+    texture = glGetUniformLocation(shader_program, "basic_texture");
 
     glEnable(GL_DEPTH_TEST); 
     glDepthFunc(GL_LESS);
@@ -92,6 +123,7 @@ void draw_tile(Tile t, int row, int col) {
 
     glUniformMatrix4fv(view, 1, GL_FALSE, view_mat->m);
     glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
+    glUniform1i(texture, 0);
 
     switch(t) {
         case WALL:
