@@ -12,6 +12,7 @@ typedef struct Mat {
 Vec* create_vec(double, double, double, double);
 void delete_vec(Vec*);
 Vec* cross_vec(Vec*, Vec*);
+Vec* scale_vec(Vec*, double);
 Vec* normalize_vec(Vec*);
 Vec* mat_times_vec(Mat*, Vec*);
 Vec* rotate_vec(Vec*, Vec*, double);

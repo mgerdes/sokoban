@@ -27,6 +27,10 @@ double dot_vec(Vec* v1, Vec* v2) {
     return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
+Vec* scale_vec(Vec* v, double s) {
+    return create_vec(v->x * s, v->y * s, v->z * s, v->w);
+}
+
 Vec* vec_minus_vec(Vec* v1, Vec* v2) {
     return create_vec(v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, 1.0);
 }

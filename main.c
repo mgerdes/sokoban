@@ -271,6 +271,16 @@ void handle_input() {
         if (glfwGetKey(window, GLFW_KEY_S)) {
             rotate_camera_up(0.02);
         }
+        if (glfwGetKey(window, GLFW_KEY_COMMA)) {
+            Vec* old_camera_pos = camera_pos;
+            camera_pos = scale_vec(camera_pos, 1.01);
+            free(old_camera_pos);
+        }
+        if (glfwGetKey(window, GLFW_KEY_PERIOD)) {
+            Vec* old_camera_pos = camera_pos;
+            camera_pos = scale_vec(camera_pos, 0.99);
+            free(old_camera_pos);
+        }
         if (glfwGetKey(window, GLFW_KEY_Q)) {
             cleanup();
             glfwDestroyWindow(window);
@@ -305,6 +315,7 @@ int main() {
     printf("|      Use [ and ] to change levels       |\n");
     printf("| Use W, A, S, and D to rotate the camera |\n");
     printf("|             Press Q to quit             |\n");
+    printf("|       Use comma and period to zoom      |\n");
     printf("|-----------------------------------------|\n");
 
     while (!glfwWindowShouldClose(window)) {
