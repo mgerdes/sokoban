@@ -1,6 +1,6 @@
 LIBS = -lGL -lGLEW -lglfw -lm
-INCLUDES = -Iobjects -Imaths -Iutils
-SRCS = level_reader.c warehouse.c main.c maths/maths.c utils/gl_utils.c
+INCLUDES = -Iobjects -Imaths -Iutils -Iobjects
+SRCS = level_reader.c warehouse.c main.c maths/maths.c utils/gl_utils.c objects/cube.c
 TARGET = sokoban
 
 sokoban: $(SRCS)
