@@ -1,4 +1,10 @@
-all: sokoban
+LIBS = -lGL -lGLEW -lglfw -lm
+INCLUDES = -Iobjects -Imaths -Iutils
+SRCS = level_reader.c warehouse.c main.c maths/maths.c utils/gl_utils.c
+TARGET = sokoban
 
-sokoban: level_reader.c warehouse.c main.c maths.c maths.h sokoban.h
-	gcc level_reader.c warehouse.c maths.c main.c -lGL -lGLEW -lglfw -lm -o sokoban
+sokoban: $(SRCS)
+	gcc $(SRCS) $(LIBS) $(INCLUDES) -o $(TARGET)
+
+clean:
+	rm -f $(TARGET)

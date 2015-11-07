@@ -8,6 +8,7 @@
 #include "level_reader.h"
 #include "maths.h"
 #include "sokoban.h"
+#include "gl_utils.h"
 
 void load_texture() {
     int x, y, n;
@@ -82,19 +83,7 @@ int init_program() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(2);
 
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
-
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(fragment_shader);
-
-    shader_program = glCreateProgram();
-    glAttachShader(shader_program, fragment_shader);
-    glAttachShader(shader_program, vertex_shader);
-    glLinkProgram(shader_program);
-    glUseProgram(shader_program);
+    shader_program = create_shader_program("shaders/frag.glsl", "shaders/vert.glsl");
 
     view = glGetUniformLocation(shader_program, "view");
     proj = glGetUniformLocation(shader_program, "proj");
