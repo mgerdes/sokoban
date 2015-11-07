@@ -6,12 +6,15 @@ static const GLfloat floor_color[] = {0.8, 0.8, 0.8};
 static const GLfloat dest_color[] = {0.4, 0.9, 0.4};
 
 int width, height;
+GLFWwindow* window;
+
 GLuint cube_vao;
 GLuint shader_program;
 GLuint view, proj, color, texture;
-GLFWwindow* window;
-int current_level;
-Warehouse* warehouse;
+
 Vec* camera_pos;
 Vec* center;
 Vec* up;
+
+int current_level;
+Warehouse* warehouse;

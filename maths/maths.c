@@ -3,6 +3,10 @@
 #include <math.h>
 #include "maths.h"
 
+Vec x_axis = {.x = 1, .y = 0, .z = 0, .w = 1};
+Vec y_axis = {.x = 0, .y = 1, .z = 0, .w = 1};
+Vec z_axis = {.x = 0, .y = 0, .z = 1, .w = 1};
+
 Vec* create_vec(double x, double y, double z, double w) {
     Vec* v = malloc(sizeof(Vec));
     v->x = x;
@@ -132,7 +136,7 @@ Mat* identity_mat() {
             0.0, 0.0, 0.0, 1.0);
 }
 
-Mat* translation_mat(double x, double y, double z) {
+Mat* create_translation_mat(double x, double y, double z) {
     Mat* m = identity_mat();
     m->m[12] = x;
     m->m[13] = y;
@@ -162,8 +166,8 @@ Mat* mat_times_mat(Mat* m1, Mat* m2) {
     return m;
 }
 
-Mat* look_at(Vec* cam_pos, Vec* targ_pos, Vec* up) {
-    Mat* p = translation_mat(-cam_pos->x, -cam_pos->y, -cam_pos->z);
+Mat* create_look_at_mat(Vec* cam_pos, Vec* targ_pos, Vec* up) {
+    Mat* p = create_translation_mat(-cam_pos->x, -cam_pos->y, -cam_pos->z);
     Vec* d = vec_minus_vec(targ_pos, cam_pos);
     Vec* f = normalize_vec(d);
     
@@ -198,7 +202,7 @@ Mat* look_at(Vec* cam_pos, Vec* targ_pos, Vec* up) {
     return ret;
 }
 
-Mat* perspective(double fovy, double aspect, double near, double far) {
+Mat* create_perspective_mat(double fovy, double aspect, double near, double far) {
     double fov_rad = fovy * ONE_DEG_IN_RAD;
     double range = tan(fov_rad / 2.0f) * near;
     double sx = (2.0f * near) / (range * aspect + range * aspect);

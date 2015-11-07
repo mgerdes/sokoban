@@ -1,67 +1,35 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "warehouse.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "image_reader/stb_image.h"
 #include "level_reader.h"
 #include "maths.h"
 #include "sokoban.h"
 #include "gl_utils.h"
 #include "cube.h"
 
-void load_texture() {
-    int x, y, n;
-    int force_channels = 3;
-    unsigned char* image_data = stbi_load("./textures/crate001.jpg", &x, &y, &n, force_channels);
-    if (!image_data) {
-        printf("Could not load image\n");
-    }
-
-    GLuint tex = 0;
-    glGenTextures(1, &tex);
-    glActiveTexture(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 
-            0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    free(image_data);
-}
-
 int init_program() {
     if (!glfwInit()) {
-        fprintf(stderr, "ERROR: could not start GLFW3\n");
+        gl_log(ERROR, "Could not start GLFW3");
         return 1;
     } 
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    x_axis = create_vec(1.0, 0.0, 0.0, 0.0);
-    y_axis = create_vec(0.0, 1.0, 0.0, 0.0);
-    z_axis = create_vec(0.0, 0.0, 1.0, 0.0);
-
     width = height = 1000;
-    window = glfwCreateWindow(width, height, "Sokoban!", NULL, NULL);
+    window = create_window(width, height, "Sokoban!");
     if (!window) {
-        fprintf(stderr, "ERROR: could not open window with GLFW3\n");
-        glfwTerminate();
+        gl_log(ERROR, "Could not create window");
         return 1;
     }
 
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     glewInit();
+    glEnable(GL_DEPTH_TEST); 
+    glDepthFunc(GL_LESS);
 
-    load_texture();
-
+    create_texture("textures/crate001.jpg");
     cube_vao = create_cube();
     shader_program = create_shader_program("shaders/frag.glsl", "shaders/vert.glsl");
 
@@ -70,15 +38,17 @@ int init_program() {
     color = glGetUniformLocation(shader_program, "vertex_color");
     texture = glGetUniformLocation(shader_program, "basic_texture");
 
-    glEnable(GL_DEPTH_TEST); 
-    glDepthFunc(GL_LESS);
+    camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
+    center = create_vec(0.0, 0.0, 0.0, 1.0);
+    up = cross_vec(camera_pos, &x_axis);
 
     current_level = 1;
     warehouse = read_in_level(current_level);
 
-    camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
-    center = create_vec(0.0, 0.0, 0.0, 1.0);
-    up = cross_vec(camera_pos, x_axis);
+    Mat* proj_mat = create_perspective_mat(67.0,(float)height / width, 0.1, 100);
+    glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
+    delete_mat(proj_mat);
+    glUniform1i(texture, 0);
 
     return 0;
 }
@@ -87,14 +57,11 @@ void draw_tile(Tile t, int row, int col) {
     double x = col*2.0 - warehouse->width + 1.0;
     double z = row*2.0 - warehouse->height + 1.0;
 
-    Mat* translation = translation_mat(x, 0.0, z);
-    Mat* look_at_mat = look_at(camera_pos, center, up); 
+    Mat* translation = create_translation_mat(x, 0.0, z);
+    Mat* look_at_mat = create_look_at_mat(camera_pos, center, up); 
     Mat* view_mat = mat_times_mat(look_at_mat, translation);
-    Mat* proj_mat = perspective(67.0,(float)width / height, 0.1, 100);
 
     glUniformMatrix4fv(view, 1, GL_FALSE, view_mat->m);
-    glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
-    glUniform1i(texture, 0);
 
     switch(t) {
         case WALL:
@@ -129,7 +96,6 @@ void draw_tile(Tile t, int row, int col) {
     delete_mat(translation);
     delete_mat(look_at_mat);
     delete_mat(view_mat);
-    delete_mat(proj_mat);
 }
 
 void draw_warehouse() {
@@ -157,16 +123,13 @@ void cleanup() {
     delete_vec(up);
     delete_vec(camera_pos);
     delete_vec(center);
-    delete_vec(x_axis);
-    delete_vec(y_axis);
-    delete_vec(z_axis);
 }
 
 void reset_camera() {
     delete_vec(up);
     delete_vec(camera_pos);
     camera_pos = create_vec(0.0, 32.0, 22.0, 1.0);
-    up = cross_vec(camera_pos, x_axis);
+    up = cross_vec(camera_pos, &x_axis);
 }
 
 void rotate_camera_up(double degrees) {

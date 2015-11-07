@@ -9,6 +9,10 @@ typedef struct Mat {
     float* m;
 } Mat;
 
+Vec x_axis;
+Vec y_axis;
+Vec z_axis;
+
 Vec* create_vec(double, double, double, double);
 void delete_vec(Vec*);
 Vec* cross_vec(Vec*, Vec*);
@@ -27,12 +31,8 @@ Mat* create_mat(double, double, double, double,
         double, double, double, double);
 void delete_mat(Mat*);
 Mat* identity_mat();
-Mat* perspective(double, double, double, double);
 Mat* mat_times_mat(Mat*, Mat*);
-Mat* look_at(Vec*, Vec*, Vec*);
-Mat* translation_mat(double, double, double);
+Mat* create_perspective_mat(double, double, double, double);
+Mat* create_look_at_mat(Vec*, Vec*, Vec*);
+Mat* create_translation_mat(double, double, double);
 void print_mat(Mat*);
-
-Vec* x_axis;
-Vec* y_axis;
-Vec* z_axis;
