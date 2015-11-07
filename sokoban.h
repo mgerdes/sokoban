@@ -5,8 +5,6 @@ static const GLfloat crate_on_dest_color[] = {0.6, 0.0, 0.6};
 static const GLfloat floor_color[] = {0.8, 0.8, 0.8};
 static const GLfloat dest_color[] = {0.4, 0.9, 0.4};
 
-int width, height;
-GLFWwindow* window;
 
 GLuint cube_vao;
 GLuint shader_program;

@@ -10,24 +10,8 @@
 #include "gl_utils.h"
 #include "cube.h"
 
-int init_program() {
-    if (!glfwInit()) {
-        gl_log(ERROR, "Could not start GLFW3");
-        return 1;
-    } 
-
-    width = height = 1000;
-    window = create_window(width, height, "Sokoban!");
-    if (!window) {
-        gl_log(ERROR, "Could not create window");
-        return 1;
-    }
-
-    glfwMakeContextCurrent(window);
-    glewExperimental = GL_TRUE;
-    glewInit();
-    glEnable(GL_DEPTH_TEST); 
-    glDepthFunc(GL_LESS);
+void init_program() {
+    init_gl("Sokoban");
 
     create_texture("textures/crate001.jpg");
     cube_vao = create_cube();
@@ -45,12 +29,10 @@ int init_program() {
     current_level = 1;
     warehouse = read_in_level(current_level);
 
-    Mat* proj_mat = create_perspective_mat(67.0,(float)height / width, 0.1, 100);
+    Mat* proj_mat = create_perspective_mat(67.0,(float)window_height / window_width, 0.1, 100);
     glUniformMatrix4fv(proj, 1, GL_FALSE, proj_mat->m);
     delete_mat(proj_mat);
     glUniform1i(texture, 0);
-
-    return 0;
 }
 
 void draw_tile(Tile t, int row, int col) {
@@ -223,10 +205,6 @@ void handle_input() {
 }
 
 int main() {
-    if (init_program() == 1) {
-        return 1;
-    }
-
     printf("|-----------------------------------------|\n");
     printf("|----------Welcome to Sokoban!------------|\n");
     printf("|-----------------------------------------|\n");
@@ -249,6 +227,8 @@ int main() {
     printf("|             Press Q to quit             |\n");
     printf("|       Use comma and period to zoom      |\n");
     printf("|-----------------------------------------|\n");
+
+    init_program();
 
     while (!glfwWindowShouldClose(window)) {
         if (is_warehouse_won(warehouse)) {
